@@ -7,8 +7,54 @@ GO -- seperates out statements that should be in their own files
 USE NBA_DB;
 GO
 
+/*****************
+* INSERT COMMAND *
+******************/
+-- insert a new player to the bucks roster table
+
+INSERT INTO dbo.bucks_roster_stats (Players, Age, G, MP, FGA, FG1, _3P)
+            VALUES ('Mamadou Ba', '31', '62', '1991', '176', '0.71', '80');
+GO
+-- since no value given to other variable, set to NULL by default
+SELECT * FROM dbo.bucks_roster_stats;
+GO
+
+/*****************
+* UPDATE COMMAND *
+******************/
+--Update a player to the bucks roster table
+UPDATE dbo.bucks_roster_stats
+SET Age = '23'
+WHERE  Players = 'Mamadou Ba';
+GO
+
+SELECT * FROM dbo.bucks_roster_stats;
+GO
+
+/*****************
+* DELETE COMMAND *
+******************/
+-- delete a player in the bucks roster table
+DELETE FROM dbo.bucks_roster_stats
+WHERE Players = 'Mamadou Ba';
+GO
+
+SELECT * FROM dbo.bucks_roster_stats;
+GO
+
+/*****************
+* SELECT COMMAND *
+******************/
 --Select all data from nba_2020-21 table 
 SELECT * FROM dbo.[nba_2020-21]
+GO
+
+--Select Player, Pos, Age data from nba_2020-21 table 
+SELECT Player, Pos, Age FROM dbo.[nba_2020-21]
+GO
+
+--Select TMs, G, MP data from team total stats 
+SELECT TMs, G, MP FROM dbo.team_total_stats
 GO
 
 --Select all data from team total stats 
@@ -19,6 +65,12 @@ GO
 SELECT * FROM dbo.bucks_roster_stats
 GO
 
+--Select Players, Age, data from bucks roster stats
+SELECT Players, Age  FROM dbo.bucks_roster_stats
+GO
+/*****************
+* ORDER BY COMMAND *
+******************/
 --Select data that we are going to use from nba_2020-21 table order by age Descending 
 SELECT Player, Pos, Age, Tm FROM dbo.[nba_2020-21]
 ORDER BY Age Desc;
@@ -48,9 +100,9 @@ ORDER BY Age ASC;
 GO
 
 --looking for players with the Highest point rate compared to player from bucks 
-SELECT column2, Age, PTS, G, (PTS/G) AS AveragePoint
+SELECT Players, Age, PTS, G, (PTS/G) AS AveragePoint
 FROM  dbo.bucks_roster_stats
-where column2 IS NOT NULL
+where Players IS NOT NULL
 ORDER BY AveragePoint Desc; 
 GO
 
@@ -77,11 +129,71 @@ GO
 --looking for average point/game of the bucks team in season 2020-21 (72 games total)
 SELECT SUM(PTS)/72 AS AveragePoint 
 FROM  dbo.bucks_roster_stats
-where column2 IS NOT NULL;
+where Players IS NOT NULL;
 GO
 
 --join all data from nba_2020-21 table and all data from team total stats 
 SELECT * FROM dbo.[nba_2020-21]
 JOIN dbo.team_total_stats
-ON 
-; 
+ON Tm = TMs; 
+
+/***********
+* GROUP BY *
+************/
+--Select data that we are going to use from nba_2020-21 table group by player
+SELECT Player FROM dbo.[nba_2020-21]
+GROUP BY Player;
+GO
+
+--Select data that we are going to use from nba_2020-21 table group by player 
+--use aggregate function count() to see how many rows are in each grouping
+SELECT 
+    Player, COUNT(*) 'Number of players'
+FROM 
+    dbo.[nba_2020-21]
+GROUP BY 
+    Player;
+GO
+
+/***********
+* HAVING *
+************/
+
+--looking for players of the bucks team  with same age only groups selected are those with less than 1 player
+
+SELECT 
+    Age, COUNT(*) 'Number of players'
+FROM  
+    dbo.bucks_roster_stats
+GROUP BY
+    Age
+HAVING
+    COUNT(*) > 1 ; 
+GO
+
+
+--looking for players in the NBA with same age only groups selected are those with less than 1 player in 2020-21 season
+SELECT 
+    Age, COUNT(*) 'Number of players'
+FROM 
+    dbo.[nba_2020-21]
+GROUP BY 
+     Age 
+HAVING 
+    COUNT(*)>1; 
+GO
+
+
+/*************
+* INNER JOIN *
+**************/
+-- inner join selects all rows between tables if there is a common field between them 
+-- select inner joint between player in 2020-21 season Bucks players.
+SELECT 
+    *
+FROM 
+    dbo.[nba_2020-21]
+INNER JOIN
+    dbo.bucks_roster_stats
+ON
+    Player = Players;
